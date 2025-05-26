@@ -5,8 +5,11 @@ namespace App\Controller;
 use App\Entity\Income;
 use App\Form\IncomeTypeForm;
 use App\Repository\IncomeRepository;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,14 +17,22 @@ use Symfony\Component\Routing\Annotation\Route;
 class IncomeController extends AbstractController
 {
     #[Route('/dashboard/income','app_income')]
-    public function income(IncomeRepository $incomeRepository)
+    public function income(IncomeRepository $incomeRepository, Request $request)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
 
-        $incomes = $incomeRepository->findBy(['user'=>$this->getUser()]);
+        $queryBuilder = $incomeRepository->createQueryBuilder('i')
+                            ->where('i.user= :user')
+                            ->setParameter('user',$user);
 
+        $adapter = new QueryAdapter($queryBuilder);
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta->setMaxPerPage(7);
+        $pagerfanta->setCurrentPage($request->query->getInt('page',1)); 
+        
         return $this->render('dashboard/income.html.twig',[
-            'incomes' => $incomes
+            'incomes' => $pagerfanta
         ]);
     }
 

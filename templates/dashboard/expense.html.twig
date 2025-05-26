@@ -31,8 +31,8 @@
         </div>
         <br>
 
-       {% for flash in app.flashes('success') %}
-            <div class="alert alert-success">{{ flash }}</div>
+        {% for flash in app.flashes('success') %}
+        <div class="alert alert-success">{{ flash }}</div>
         {% endfor %}
 
         <div class="app-table">
@@ -49,28 +49,38 @@
 
                 <tbody>
                     {% for expense in expenses %}
-                        <tr>
-                            <td>{{ expense.Amount }}</td>
-                            <td>{{ expense.Category }}</td>
-                            <td>{{ expense.description }}</td>
-                            <td>{{ expense.expenseDate|date('d-m-Y') }}</td>
-                            <td>
-                                <a href="{{ path('app_edit_expense',{'id': expense.id}) }}" class="btn btn-secondary">Edit</a>
-                                <a href="{{ path('app_delete_expense',{'id': expense.id}) }}" class="btn btn-secondary">Delete</a>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td>{{ expense.Amount }}</td>
+                        <td>{{ expense.Category }}</td>
+                        <td>{{ expense.description }}</td>
+                        <td>{{ expense.expenseDate|date('d-m-Y') }}</td>
+                        <td>
+                            <a href="{{ path('app_edit_expense',{'id': expense.id}) }}"
+                                class="btn btn-secondary">Edit</a>
+                            <a href="{{ path('app_delete_expense',{'id': expense.id}) }}"
+                                class="btn btn-secondary">Delete</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No Expenses found...</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div class="pagination justify-content-left mt-4">
+                {{ pagerfanta(expenses, 'twitter_bootstrap5') }}
+            </div>
         </div>
     </div>
     {% else %}
-        <div class="row">
-            You need to login first
-        </div>
+    <div class="row">
+        You need to login first
+    </div>
     {% endif %}
 </div>
 
 
-{# <script src="{% static ' js/searchExpenses.js' %}"></script> #}
+{#
+<script src="{% static ' js/searchExpenses.js' %}"></script> #}
 {% endblock %}

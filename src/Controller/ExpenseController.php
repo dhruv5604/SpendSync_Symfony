@@ -6,6 +6,8 @@ use App\Entity\Expense;
 use App\Form\ExpenseTypeForm;
 use App\Repository\ExpenseRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,14 +16,22 @@ use Symfony\Component\Routing\Annotation\Route;
 class ExpenseController extends AbstractController
 {
     #[Route('dashboard/expense',"app_expense")]
-    public function expense(ExpenseRepository $expenseRepository,Security $security)
+    public function expense(Request $request, ExpenseRepository $expenseRepository,Security $security)
     {   
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $security->getUser();
 
-        $expenses = $expenseRepository->findBy(['user'=>$user]);    
+        $queryBuilder = $expenseRepository->createQueryBuilder('e')
+                            ->where('e.user= :user')
+                            ->setParameter('user',$user);
+
+        $adapter = new QueryAdapter($queryBuilder);
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta->setMaxPerPage(7);
+        $pagerfanta->setCurrentPage($request->query->getInt('page',1));
+
         return $this->render('/dashboard/expense.html.twig',[
-            "expenses" => $expenses,
+            "expenses" => $pagerfanta,
         ]);
     }
 
@@ -92,5 +102,10 @@ class ExpenseController extends AbstractController
 
         $this->addFlash('success','Expense deleted successfully');
         return $this->redirectToRoute('app_expense');
+    }
+
+    public function search()
+    {
+
     }
 }

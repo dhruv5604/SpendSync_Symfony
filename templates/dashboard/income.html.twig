@@ -59,9 +59,16 @@
                                 <a href="{{ path('app_delete_income',{'id': income.id}) }}" class="btn btn-secondary">Delete</a>
                             </td>
                         </tr>
+                    {% else %}
+                        <tr>
+                            <td>No Incomes Found...</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div class="pagination justify-content-left mt-4">
+                {{ pagerfanta(incomes, 'twitter_bootstrap5') }}
+            </div>
         </div>
     </div>
     {% else %}
