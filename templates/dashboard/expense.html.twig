@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Expense{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+
+        <div class="col-md-9">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="">Expenses</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Expenses</li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="col-md-2">
+            <a href="{{ path('app_add_expense') }}" class="btn btn-primary">Add Expenses</a>
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        {# {% include "partials/_messages.html" %} #}
+        {# {% if expenses.count%} #}
+
+        <div class="row">
+            <div class="col-md-8">
+                <a href="#" class="btn btn-info">Export EXCEL</a>
+                <a href="#" class="btn btn-info">Export CSV</a>
+            </div>
+            <div class="col-md-4">
+
+
+                {# <a href="{% url " export-pdf" %}" class="btn btn-info">Export PDF</a> #}
+                <input type="text" class="form-control" id="searchField" placeholder="search">
+            </div>
+        </div>
+        <br>
+
+        <div class="app-table">
+            <table class="table table-stripped table-hover">
+                <thead>
+                    <tr>
+                        {# <th>Amount ({{Currency}})</th> #}
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.Amount }}</td>
+                            <td>{{ expense.Category }}</td>
+                            <td>{{ expense.description }}</td>
+                            <td>{{ expense.expenseDate|date('d-m-Y') }}</td>
+                            <td><a href="{{ path('app_edit_expense',{
+                                'id': expense.id
+                            }) }}" class="btn btn-secondary">Edit</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# <div class="table-output">
+            <table class="table table-stripped table-hover">
+                <thead>
+                    <tr>
+                        <th>Amount (Currency)</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody class="table-body">
+
+                </tbody>
+            </table>
+        </div> #}
+    </div>
+</div>
+
+
+{# <script src="{% static ' js/searchExpenses.js' %}"></script> #}
+{% endblock %}
