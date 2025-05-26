@@ -15,7 +15,8 @@ class ExpenseController extends AbstractController
 {
     #[Route('dashboard/expense',"app_expense")]
     public function expense(ExpenseRepository $expenseRepository,Security $security)
-    {
+    {   
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $security->getUser();
 
         $expenses = $expenseRepository->findBy(['user'=>$user]);    
@@ -24,9 +25,11 @@ class ExpenseController extends AbstractController
         ]);
     }
 
-    #[Route('dashboard/add-expense','app_add_expense')]
+    #[Route('dashboard/expense/add','app_add_expense')]
     public function addExpense(Request $request, EntityManagerInterface $entityManager, Security $security)
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $expense = new Expense();
 
         $form = $this->createForm(ExpenseTypeForm::class,$expense);
@@ -38,6 +41,8 @@ class ExpenseController extends AbstractController
 
             $entityManager->persist($expense);
             $entityManager->flush();
+            
+            $this->addFlash('success','Expense added successfully');
 
             return $this->redirectToRoute('app_expense');
         }
@@ -47,9 +52,45 @@ class ExpenseController extends AbstractController
         ]); 
     }
 
-    #[Route("/dashboard/edit-expense/{id}","app_edit_expense")]
-    public function editExpense($id)
+    #[Route("/dashboard/expense/edit/{id}","app_edit_expense")]
+    public function editExpense(int $id,Request $request, EntityManagerInterface $entityManager, ExpenseRepository $expenseRepository)
     {
-        dd($id);
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $expense = $expenseRepository->find($id);
+
+        if (!$expense) {
+            throw $this->createNotFoundException('Expense Not Found');
+        }
+
+        if ($expense->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Only Creator of this expense will edit this expense');
+        }
+
+        $form = $this->createForm(ExpenseTypeForm::class, $expense);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success','Expense updated Successfully');
+            return $this->redirectToRoute('app_expense');
+        }
+
+        return $this->render('dashboard/add-expense.html.twig',[
+            "form" => $form->createView()
+        ]);
+    }
+
+    #[Route('dashboard/expense/delete/{id}','app_delete_expense')]
+    public function deleteExpense(int $id, ExpenseRepository $expenseRepository, EntityManagerInterface $entityManager)
+    {
+        $expense = $expenseRepository->find($id);
+
+        $entityManager->remove($expense);
+        $entityManager->flush();
+
+        $this->addFlash('success','Expense deleted successfully');
+        return $this->redirectToRoute('app_expense');
     }
 }

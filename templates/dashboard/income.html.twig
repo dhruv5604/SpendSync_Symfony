@@ -6,15 +6,15 @@
         <div class="col-md-9">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="">Expenses</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">My Expenses</li>
+                    <li class="breadcrumb-item"><a href="">Incomes</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Incomes</li>
                 </ol>
             </nav>
         </div>
 
         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
         <div class="col-md-2">
-            <a href="{{ path('app_add_expense') }}" class="btn btn-primary">Add Expenses</a>
+            <a href="{{ path('app_add_income') }}" class="btn btn-primary">Add Income</a>
         </div>
     </div>
     <br>
@@ -31,7 +31,7 @@
         </div>
         <br>
 
-       {% for flash in app.flashes('success') %}
+        {% for flash in app.flashes('success') %}
             <div class="alert alert-success">{{ flash }}</div>
         {% endfor %}
 
@@ -48,15 +48,15 @@
                 </thead>
 
                 <tbody>
-                    {% for expense in expenses %}
+                    {% for income in incomes %}
                         <tr>
-                            <td>{{ expense.Amount }}</td>
-                            <td>{{ expense.Category }}</td>
-                            <td>{{ expense.description }}</td>
-                            <td>{{ expense.expenseDate|date('d-m-Y') }}</td>
+                            <td>{{ income.Amount }}</td>
+                            <td>{{ income.Category }}</td>
+                            <td>{{ income.description }}</td>
+                            <td>{{ income.incomeDate|date('d-m-Y') }}</td>
                             <td>
-                                <a href="{{ path('app_edit_expense',{'id': expense.id}) }}" class="btn btn-secondary">Edit</a>
-                                <a href="{{ path('app_delete_expense',{'id': expense.id}) }}" class="btn btn-secondary">Delete</a>
+                                <a href="{{ path('app_edit_income',{'id': income.id}) }}" class="btn btn-secondary">Edit</a>
+                                <a href="{{ path('app_delete_income',{'id': income.id}) }}" class="btn btn-secondary">Delete</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -72,5 +72,5 @@
 </div>
 
 
-{# <script src="{% static ' js/searchExpenses.js' %}"></script> #}
+{# <script src="{% static ' js/searchincomes.js' %}"></script> #}
 {% endblock %}
