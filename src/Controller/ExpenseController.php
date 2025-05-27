@@ -63,8 +63,9 @@ class ExpenseController extends AbstractController
             return $this->redirectToRoute('app_expense');
         }
 
-        return $this->render('dashboard/add-expense.html.twig', [
+        return $this->render('dashboard/expense-form.html.twig', [
             'form' => $form->createView(),
+            'formTitle' => 'Add Expense',
         ]);
     }
 
@@ -93,8 +94,9 @@ class ExpenseController extends AbstractController
             return $this->redirectToRoute('app_expense');
         }
 
-        return $this->render('dashboard/add-expense.html.twig', [
-            "form" => $form->createView()
+        return $this->render('dashboard/expense-form.html.twig', [
+            "form" => $form->createView(),
+            "formTitle" => "Edit Expense",
         ]);
     }
 

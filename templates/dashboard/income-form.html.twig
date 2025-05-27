@@ -5,20 +5,20 @@
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ path('app_expense') }}">Expenses</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Add Expenses</li>
+      <li class="breadcrumb-item"><a href="{{ path('app_income') }}">Incomes</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Incomes</li>
     </ol>
   </nav>  
 
   <div class="card">
     <div class="card-body">
-      
+      <h3>{{ formTitle }}</h3>
       {{ form_start(form) }}
         {{ form_row(form.amount) }}
         {{ form_row(form.category) }}
         {{ form_row(form.description) }}
-        {{ form_row(form.expense_date) }}
-        <button type="submit" class="btn btn-primary">Add Expense</button>
+        {{ form_row(form.income_date) }}
+        <button type="submit" class="btn btn-primary">Add Income</button>
       {{ form_end(form) }}
 
     </div>

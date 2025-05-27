@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-9">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="">Account</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Account</li>
+                </ol>
+            </nav>
+        </div>
+
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        <div class="col-md-2">
+            <a href="{{ path('app_add_account') }}" class="btn btn-primary">Add Account
+            </a>
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <a href="#" class="btn btn-info">Export EXCEL</a>
+                <a href="#" class="btn btn-info">Export CSV</a>
+                <a href="#" class="btn btn-info">Export PDF</a>
+            </div>
+            <div class="col-md-4">
+                <form role="search" action="{{ path('app_account') }}">
+                    <input type="text" class="form-control" id="searchField" name="q" placeholder="search">
+                </form>
+            </div>
+        </div>
+        <br>
+
+        {% for flash in app.flashes('success') %}
+            <div class="alert alert-success">{{ flash }}</div>
+        {% endfor %}
+
+        <div class="app-table">
+            <table class="table table-stripped table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total Balance</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for account in accounts %}
+                        <tr>
+                            <td>{{ account.name }}</td>
+                            <td>{{ account.balance }}</td>
+                            <td>
+                                <a href="{{ path('app_edit_account',{'id': account.id}) }}" class="btn btn-secondary">Edit</a>
+                                <a href="{{ path('app_delete_account',{'id': account.id}) }}" class="btn btn-secondary">Delete</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td>No Account Found...</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="pagination justify-content-left mt-4">
+                {{ pagerfanta(accounts, 'twitter_bootstrap5') }}
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div class="row">
+            You need to login first
+        </div>
+    {% endif %}
+</div>
+
+
+{# <script src="{% static ' js/searchincomes.js' %}"></script> #}
+{% endblock %}

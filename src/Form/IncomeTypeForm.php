@@ -22,6 +22,9 @@ class IncomeTypeForm extends AbstractType
             ->add('category',ChoiceType::class,[
                 'choices' => [
                     'Business Income' => 'Business Income',
+                    'Salary' => 'Salary',
+                    'Freelance work' => 'Freelance work',
+                    'Investments' => 'Investments',
                     'Rental Income' => 'Rental Income',
                     'Other' => 'Other'
                 ]

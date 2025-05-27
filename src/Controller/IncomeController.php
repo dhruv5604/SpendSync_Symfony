@@ -62,8 +62,9 @@ class IncomeController extends AbstractController
             return $this->redirectToRoute('app_income');
         }
 
-        return $this->render('dashboard/add-income.html.twig',[
-            'form' => $form->createView()
+        return $this->render('dashboard/income-form.html.twig',[
+            'form' => $form->createView(),
+            'formTitle' => 'Add Income'
         ]);
     }
 
@@ -92,8 +93,9 @@ class IncomeController extends AbstractController
             return $this->redirectToRoute('app_income');
         }
 
-        return $this->render('dashboard/add-income.html.twig',[
-            "form" => $form->createView()
+        return $this->render('dashboard/income-form.html.twig',[
+            'form' => $form->createView(),
+            'formTitle' => 'Edit Income'
         ]);
     }
 

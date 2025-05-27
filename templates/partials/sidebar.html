@@ -8,6 +8,12 @@
         <ul class="nav flex-column">
           
           <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" href="{{ path('app_account') }}">
+              <svg class="bi"><use xlink:href="#file-earmark"/></svg>
+              Account
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-2" href="{{ path('app_expense') }}">
               <svg class="bi"><use xlink:href="#file-earmark"/></svg>
               Expenses
@@ -23,12 +29,6 @@
             <a class="nav-link d-flex align-items-center gap-2" href="#">
               <svg class="bi"><use xlink:href="#cart"/></svg>
               Asset
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2" href="#">
-              <svg class="bi"><use xlink:href="#cart"/></svg>
-              Liabilities
             </a>
           </li>
         </ul>
