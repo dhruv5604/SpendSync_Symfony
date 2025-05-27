@@ -22,9 +22,15 @@ class IncomeController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $this->getUser();
 
-        $queryBuilder = $incomeRepository->createQueryBuilder('i')
-                            ->where('i.user= :user')
-                            ->setParameter('user',$user);
+        $search = $request->query->get('q');
+
+        if ($search) {
+            $queryBuilder = $incomeRepository->search($search,$user);
+        } else {
+            $queryBuilder = $incomeRepository->createQueryBuilder('i')
+                                ->where('i.user= :user')
+                                ->setParameter('user',$user);
+        }
 
         $adapter = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);

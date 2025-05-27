@@ -16,6 +16,18 @@ class ExpenseRepository extends ServiceEntityRepository
         parent::__construct($registry, Expense::class);
     }
 
+    public function search($search, $user)
+    {
+        return $this->createQueryBuilder('q')
+                ->andWhere('q.Amount like :search 
+                    OR q.Category like :search
+                    OR q.description like :search
+                    OR q.expenseDate like :search')
+                ->andWhere('q.user= :user')
+                ->setParameter('search', $search)
+                ->setParameter('user', $user);
+    }
+
     //    /**
     //     * @return Expense[] Returns an array of Expense objects
     //     */

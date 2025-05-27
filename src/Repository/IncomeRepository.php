@@ -16,6 +16,18 @@ class IncomeRepository extends ServiceEntityRepository
         parent::__construct($registry, Income::class);
     }
 
+    public function search($search, $user)
+    {
+        return $this->createQueryBuilder(alias: 'q')
+                ->andWhere('q.amount like :search
+                    OR q.category like :search
+                    OR q.description like :search
+                    OR q.income_date like :search')
+                ->andWhere('q.user= :user')
+                ->setParameter('search', $search)
+                ->setParameter('user', $user);
+    }
+
     //    /**
     //     * @return Income[] Returns an array of Income objects
     //     */
