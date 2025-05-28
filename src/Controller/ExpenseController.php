@@ -10,7 +10,6 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -48,12 +47,16 @@ class ExpenseController extends AbstractController
 
         $expense = new Expense();
 
-        $form = $this->createForm(ExpenseTypeForm::class, $expense);
+        $form = $this->createForm(ExpenseTypeForm::class, $expense, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
             $expense->setUser($security->getUser());
+            $accountBalance = $expense->getAccount()->getBalance();
+            $expense->getAccount()->setBalance($accountBalance - $expense->getAmount());
 
             $entityManager->persist($expense);
             $entityManager->flush();
@@ -84,10 +87,22 @@ class ExpenseController extends AbstractController
             throw $this->createAccessDeniedException('Only Creator of this expense will edit this expense');
         }
 
-        $form = $this->createForm(ExpenseTypeForm::class, $expense);
+        $originalAmount = $expense->getAmount();
+
+        $form = $this->createForm(ExpenseTypeForm::class, $expense, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $newAmount = $expense->getAmount();
+            $difference = $newAmount - $originalAmount;
+
+            $account = $expense->getAccount();
+            $account->setBalance($account->getBalance() - $difference);
+
+            $expense->setUser($this->getUser());
+
             $entityManager->flush();
 
             $this->addFlash('success', 'Expense updated Successfully');

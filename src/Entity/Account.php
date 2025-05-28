@@ -25,16 +25,10 @@ class Account
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    /**
-     * @var Collection<int, Expense>
-     */
-    #[ORM\ManyToMany(targetEntity: Expense::class, mappedBy: 'account')]
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: Expense::class)]
     private Collection $expenses;
 
-    /**
-     * @var Collection<int, Income>
-     */
-    #[ORM\ManyToMany(targetEntity: Income::class, mappedBy: 'account')]
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: Income::class)]
     private Collection $incomes;
 
     public function __construct()
@@ -84,9 +78,6 @@ class Account
         return $this;
     }
 
-    /**
-     * @return Collection<int, Expense>
-     */
     public function getExpenses(): Collection
     {
         return $this->expenses;
@@ -95,8 +86,8 @@ class Account
     public function addExpense(Expense $expense): static
     {
         if (!$this->expenses->contains($expense)) {
-            $this->expenses->add($expense);
-            $expense->addAccount($this);
+            $this->expenses[] = $expense;
+            $expense->setAccount($this);
         }
 
         return $this;
@@ -105,36 +96,37 @@ class Account
     public function removeExpense(Expense $expense): static
     {
         if ($this->expenses->removeElement($expense)) {
-            $expense->removeAccount($this);
+            if ($expense->getAccount() === $this) {
+                $expense->setAccount(null);
+            }
         }
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Income>
-     */
-    public function getIncomes(): Collection
+    public function getIncome(): Collection
     {
         return $this->incomes;
     }
 
     public function addIncome(Income $income): static
-    {
-        if (!$this->incomes->contains($income)) {
-            $this->incomes->add($income);
-            $income->addAccount($this);
-        }
-
-        return $this;
+{
+    if (!$this->incomes->contains($income)) {
+        $this->incomes->add($income);
+        $income->setAccount($this);
     }
 
-    public function removeIncome(Income $income): static
-    {
-        if ($this->incomes->removeElement($income)) {
-            $income->removeAccount($this);
-        }
+    return $this;
+}
 
-        return $this;
+public function removeIncome(Income $income): static
+{
+    if ($this->incomes->removeElement($income)) { 
+        if ($income->getAccount() === $this) {
+            $income->setAccount(null);
+        }
     }
+
+    return $this;
+}
 }

@@ -36,16 +36,8 @@ class Income
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    /**
-     * @var Collection<int, Account>
-     */
-    #[ORM\ManyToMany(targetEntity: Account::class, inversedBy: 'incomes')]
-    private Collection $account;
-
-    public function __construct()
-    {
-        $this->account = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'incomes')]
+    private ?Account $account = null;
 
     public function getId(): ?int
     {
@@ -118,33 +110,21 @@ class Income
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
-    
+
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
         $this->updatedAt = new \DateTime();
     }
 
-    /**
-     * @return Collection<int, Account>
-     */
-    public function getAccount(): Collection
+    public function getAccount(): ?Account
     {
         return $this->account;
     }
 
-    public function addAccount(Account $account): static
+    public function setAccount(?Account $account): static
     {
-        if (!$this->account->contains($account)) {
-            $this->account->add($account);
-        }
-
-        return $this;
-    }
-
-    public function removeAccount(Account $account): static
-    {
-        $this->account->removeElement($account);
+        $this->account = $account;
 
         return $this;
     }

@@ -18,7 +18,7 @@ class Expense
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-   
+
     private ?int $id = null;
 
     #[ORM\Column]
@@ -36,16 +36,11 @@ class Expense
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTime $expenseDate = null;
 
-    /**
-     * @var Collection<int, Account>
-     */
-    #[ORM\ManyToMany(targetEntity: Account::class, inversedBy: 'expenses')]
-    private Collection $account;
+    #[ORM\ManyToOne(inversedBy: 'expenses')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Account $account = null;
 
-    public function __construct()
-    {
-        $this->account = new ArrayCollection();
-    }
+    public function __construct() {}
 
     public function getId(): ?int
     {
@@ -125,27 +120,14 @@ class Expense
         return $this;
     }
 
-    /**
-     * @return Collection<int, Account>
-     */
-    public function getAccount(): Collection
+    public function getAccount(): ?Account
     {
         return $this->account;
     }
 
-    public function addAccount(Account $account): static
+    public function setAccount(?Account $account): static
     {
-        if (!$this->account->contains($account)) {
-            $this->account->add($account);
-        }
-
-        return $this;
-    }
-
-    public function removeAccount(Account $account): static
-    {
-        $this->account->removeElement($account);
-
+        $this->account = $account;
         return $this;
     }
 }
