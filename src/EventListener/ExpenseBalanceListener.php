@@ -15,15 +15,14 @@ class ExpenseBalanceListener
     }
 
     public function onExpenseUpdate(ExpenseBalanceEvent $event)
-{
-    $expense = $event->getExpense();
-    $originalAccount = $event->getOriginalAccount();
+    {
+        $expense = $event->getExpense();
+        $originalAccount = $event->getOriginalAccount();
 
-    $amount = $expense->getAmount();
+        $amount = $expense->getAmount();
 
-    $originalAccount->setBalance($originalAccount->getBalance() + $amount);
-    $expense->getAccount()->setBalance($expense->getAccount()->getBalance() - $amount);
-    $this->em->flush();
-}
-
+        $originalAccount->setBalance($originalAccount->getBalance() - $amount);
+        $expense->getAccount()->setBalance($expense->getAccount()->getBalance() + $amount);
+        $this->em->flush();
+    }
 }

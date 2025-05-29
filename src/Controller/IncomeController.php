@@ -2,11 +2,13 @@
 namespace App\Controller;
 
 use App\Entity\Income;
+use App\Event\IncomeBalanceEvent;
 use App\Form\IncomeTypeForm;
 use App\Repository\IncomeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,7 +41,7 @@ class IncomeController extends AbstractController
         ]);
     }
 
-    #[Route('dashboard/income/add', 'app_add_income')]
+    #[Route('/dashboard/income/add', 'app_add_income')]
     public function addIncome(Request $request, EntityManagerInterface $entityManager)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -70,12 +72,13 @@ class IncomeController extends AbstractController
         ]);
     }
 
-    #[Route('dashboard/income/edit/{id}', name: 'app_edit_income')]
-    public function editIncome(int $id, Request $request, IncomeRepository $incomeRepository, EntityManagerInterface $entityManager) 
+    #[Route('/dashboard/income/edit/{id}', name: 'app_edit_income')]
+    public function editIncome(int $id, Request $request, IncomeRepository $incomeRepository, EntityManagerInterface $entityManager, EventDispatcherInterface $eventDispatcher) 
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $income = $incomeRepository->find($id);
+        $originalAccount = $income->getAccount();
 
         if (! $income) {
             throw $this->createNotFoundException('Income Not Found');
@@ -94,11 +97,15 @@ class IncomeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $newAmount  = $income->getAmount();
-            $difference = $newAmount - $originalAmount;
+            $newAccount = $income->getAccount();
 
-            $account = $income->getAccount();
-            $account->setBalance($account->getBalance() + $difference);
-
+            if ($newAccount === $originalAccount) {
+                $difference = $newAmount - $originalAmount;
+                $newAccount->setBalance($newAccount->getBalance() + $difference); 
+            } else {
+                $event = new IncomeBalanceEvent($originalAccount, $income, $originalAmount);
+                $eventDispatcher->dispatch($event, IncomeBalanceEvent::NAME);
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'Income updated successfully.');
@@ -111,7 +118,7 @@ class IncomeController extends AbstractController
         ]);
     }
 
-    #[Route('dashboard/income/delete/{id}', 'app_delete_income')]
+    #[Route('/dashboard/income/delete/{id}', 'app_delete_income')]
     public function deleteIncome(int $id, IncomeRepository $incomeRepository, Request $request, EntityManagerInterface $entityManager)
     {
         $income = $incomeRepository->find($id);
