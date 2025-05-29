@@ -3,13 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Expense;
+use App\Event\ExpenseBalanceEvent;
 use App\Form\ExpenseTypeForm;
 use App\Repository\ExpenseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -73,11 +76,12 @@ class ExpenseController extends AbstractController
     }
 
     #[Route("/dashboard/expense/edit/{id}", "app_edit_expense")]
-    public function editExpense(int $id, Request $request, EntityManagerInterface $entityManager, ExpenseRepository $expenseRepository)
+    public function editExpense(int $id, Request $request, EntityManagerInterface $entityManager, ExpenseRepository $expenseRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $expense = $expenseRepository->find($id);
+        $originalAccount = $expense->getAccount();
 
         if (!$expense) {
             throw $this->createNotFoundException('Expense Not Found');
@@ -88,7 +92,7 @@ class ExpenseController extends AbstractController
         }
 
         $originalAmount = $expense->getAmount();
-
+        
         $form = $this->createForm(ExpenseTypeForm::class, $expense, [
             'user' => $this->getUser(),
         ]);
@@ -97,12 +101,18 @@ class ExpenseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $newAmount = $expense->getAmount();
             $difference = $newAmount - $originalAmount;
-
+            
             $account = $expense->getAccount();
             $account->setBalance($account->getBalance() - $difference);
+            
+            $newAccount = $expense->getAccount()->getName();
+
+            if ($newAccount !== $originalAccount->getName()) { 
+                $event = new ExpenseBalanceEvent($originalAccount, $expense);
+                $eventDispatcher->dispatch($event, ExpenseBalanceEvent::NAME);
+            }
 
             $expense->setUser($this->getUser());
-
             $entityManager->flush();
 
             $this->addFlash('success', 'Expense updated Successfully');

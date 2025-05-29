@@ -44,6 +44,7 @@
                         <th>Amount</th>
                         <th>Category</th>
                         <th>Description</th>
+                        <th>Account</th>
                         <th>Date</th>
                         <th>Action</th>
                     </tr>
@@ -55,6 +56,7 @@
                         <td>{{ expense.Amount }}</td>
                         <td>{{ expense.Category }}</td>
                         <td>{{ expense.description }}</td>
+                        <td>{{ expense.account.name }}</td>
                         <td>{{ expense.expenseDate|date('d-m-Y') }}</td>
                         <td>
                             <a href="{{ path('app_edit_expense',{'id': expense.id}) }}"
