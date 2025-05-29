@@ -1,55 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="{{ asset('build/images/favicon.svg') }}" type="image/x-icon"/>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <title>SpendSync</title>
 
-    {% block stylesheets %}
-        {{ encore_entry_link_tags('app') }}
-    {% endblock %}
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="{{ asset('build/images/favicon.svg') }}" type="image/x-icon" />
+  <script src="https://unpkg.com/feather-icons"></script>
+  <title>SpendSync</title>
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-    {% endblock %}
+  {% block stylesheets %}
+  {{ encore_entry_link_tags('app') }}
+  {% endblock %}
 
-  </head>
-  <body>
-    <section id="home">
+  {% block javascripts %}
+  {{ encore_entry_script_tags('app') }}
+  {% endblock %}
+
+</head>
+
+<body>
+  <section id="home">
     <header class="container">
       <nav>
         <div class="logo">
           <p>SpendSync</p>
         </div>
         <section id="home">
-        <div class="buttons">
-          {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+          <div class="buttons">
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
             <a href="{{ path('app_logout') }}" class="button contact">Logout</a>
-          {% else %}  
+            {% else %}
             <a href="{{ path('app_login') }}" class="button contact">Login</a>
-          {% endif %} 
-          <a href="#dashboard" class="button get-started">Dashboard</a>
-          <a href="#preview" class="button get-started">Networth</a>
-          <a href="#trackWealthChat" class="button get-started">wealthchat</a>
-        </div>
-      </section>
+            {% endif %}
+            <a href="#dashboard" class="button get-started">Dashboard</a>
+            <a href="#preview" class="button get-started">Networth</a>
+            <a href="#trackWealthChat" class="button get-started">wealthchat</a>
+          </div>
+        </section>
         <div class="mobile-menu">
           <div class="open-close">
-            <img
-              src="./images/menu.svg"
-              alt="Abrir"
-              class="open"
-              onclick="Menu.open()"
-            />
-            <img
-              src="./images/close.svg"
-              alt="fechar"
-              class="close"
-              onclick="Menu.close()"
-            />
+            <img src="./images/menu.svg" alt="Abrir" class="open" onclick="Menu.open()" />
+            <img src="./images/close.svg" alt="fechar" class="close" onclick="Menu.close()" />
 
             <div class="logo-menu">
               <img src="{{ asset('build/images/logo.svg') }}" alt="" />
@@ -63,11 +55,7 @@
                   <li><a href="./index.html" onclick="Menu.close()">Home</a></li>
                   <li><a href="#contact" onclick="Menu.close()">Contact</a></li>
                   <li>
-                    <a
-                      href="./pages/Dashboard/dashboard.html"
-                      onclick="Menu.close()"
-                      >Get Started</a
-                    >
+                    <a href="./pages/Dashboard/dashboard.html" onclick="Menu.close()">Get Started</a>
                   </li>
                 </ul>
               </div>
@@ -76,42 +64,40 @@
         </div>
       </nav>
       <section id="dashboard">
-      <div class="header-content">
-        <div class="header-content-left">
-          <h1>Your best financial life starts here.</h1>
-          <p>
-            A smart, easy-to-use app that allows you to track your in-and-out
-            money.
-          </p>
-          <a href="{{ path('app_expense') }}" class="button get-started">Go to Dashboard</a>
-        </div>
+        <div class="header-content">
+          <div class="header-content-left">
+            <h1>Your best financial life starts here.</h1>
+            <p>
+              A smart, easy-to-use app that allows you to track your in-and-out
+              money.
+            </p>
+            <a href="{{ path('app_dashboard') }}" class="button get-started">Go to Dashboard</a>
+          </div>
 
-        <div class="header-content-right">
-          <img src="{{ asset('build/images/team.svg') }}" alt="Team image" />
-        </div>
-      </div>
-    </section>
-    </header>
-
-      <section class="track-your-spending container" id="track">
-        <div class="track-your-spending-left">
-          <h2 class="section-title">Track your spending</h2>
-          <p class="section-paragraph">
-            Reach your goals with custom budgets, monitoring your incomes and
-            expenses everyday, All for free.
-          </p>
-          <div class="get-started-line">
-            <a href="#" class="get-started"
-              >Get Started</a
-            >
-            <div class="green-line"></div>
+          <div class="header-content-right">
+            <img src="{{ asset('build/images/team.svg') }}" alt="Team image" />
           </div>
         </div>
-
-        <div class="track-your-spending-right">
-          <img src="{{ asset('build/images/invest.png') }}" alt="image" />
-        </div>
       </section>
+    </header>
+
+    <section class="track-your-spending container" id="track">
+      <div class="track-your-spending-left">
+        <h2 class="section-title">Track your spending</h2>
+        <p class="section-paragraph">
+          Reach your goals with custom budgets, monitoring your incomes and
+          expenses everyday, All for free.
+        </p>
+        <div class="get-started-line">
+          <a href="#" class="get-started">Get Started</a>
+          <div class="green-line"></div>
+        </div>
+      </div>
+
+      <div class="track-your-spending-right">
+        <img src="{{ asset('build/images/invest.png') }}" alt="image" />
+      </div>
+    </section>
 
     <main id="preview">
       <section class="app-preview container">
@@ -122,12 +108,10 @@
         <div class="app-preview-right">
           <h2 class="section-title">Calculate your Networth</h2>
           <p class="section-paragraph">
-            Know the actual networth of yourself by adding the assets and liabilities 
+            Know the actual networth of yourself by adding the assets and liabilities
           </p>
           <div class="get-started-line">
-            <a href="#" class="get-started"
-              >Get Started</a
-            >
+            <a href="#" class="get-started">Get Started</a>
             <div class="green-line"></div>
           </div>
         </div>
@@ -137,12 +121,11 @@
         <div class="track-your-spending-left">
           <h2 class="section-title">wealthchat</h2>
           <p class="section-paragraph">
-            Discuss your favourite financial topic remaining unidentified from others and share the insights regarding that field
+            Discuss your favourite financial topic remaining unidentified from others and share the insights regarding
+            that field
           </p>
           <div class="get-started-line">
-            <a href="http://127.0.0.1:8001/" class="get-started"
-              >Get Started</a
-            >
+            <a href="http://127.0.0.1:8001/" class="get-started">Get Started</a>
             <div class="green-line"></div>
           </div>
         </div>
@@ -158,11 +141,7 @@
             <h2 class="section-title">Get in touch with us.</h2>
           </div>
           <div class="get-in-touch-right">
-            <a
-              href="#"
-              class="button get-started"
-              >Contact</a
-            >
+            <a href="#" class="button get-started">Contact</a>
           </div>
         </div>
       </section>
@@ -179,9 +158,7 @@
         <div class="footer-card">
           <h3>About</h3>
           <a href="#" target="_blank">developer</a>
-          <a href="" target="_blank"
-            >Source code</a
-          >
+          <a href="" target="_blank">Source code</a>
         </div>
         <div class="footer-card">
           <h3>Quick Links</h3>
@@ -194,45 +171,35 @@
         <div class="footer-card">
           <h3>Get in touch</h3>
           <div class="social">
-            <a
-              href="#"
-              target="_blank"
-              id="linkedin"
-              ><i data-feather="linkedin"></i
-            ></a>
-            <a href="#" target="_blank"
-              ><i data-feather="github" id="git"></i
-            ></a>
-            <a
-              href="#"
-              target="_blank"
-              id="insta"
-              ><i data-feather="instagram"></i
-            ></a>
+            <a href="#" target="_blank" id="linkedin"><i data-feather="linkedin"></i></a>
+            <a href="#" target="_blank"><i data-feather="github" id="git"></i></a>
+            <a href="#" target="_blank" id="insta"><i data-feather="instagram"></i></a>
           </div>
         </div>
       </div>
     </footer>
     <div class="loader-overlay" id="loader-overlay">
-      <div class="loader" id="loader"></div>  
+      <div class="loader" id="loader"></div>
     </div>
 
     <script src="https://unpkg.com/scrollreveal"></script>
-    {#  <script src="{% static "js/scrollReveal.js" %}"></script>
-    <script src="{% static "js/home.js" %}"></script> #}
+    {#
+    <script src="{% static " js/scrollReveal.js" %}"></script>
+    <script src="{% static " js/home.js" %}"></script> #}
     <script>
       feather.replace();
     </script>
 
-  <script defer>
-    let spinner = document.querySelector('.loader-overlay');
+    <script defer>
+      let spinner = document.querySelector('.loader-overlay');
 
-    window.addEventListener( 'load', () => {
-      spinner.parentElement.removeChild(spinner);
-    })
-    setTimeout(() => {
+      window.addEventListener('load', () => {
+        spinner.parentElement.removeChild(spinner);
+      })
+      setTimeout(() => {
         document.getElementById('loader-overlay').style.display = 'none';
-    }, 3000);
-  </script>
-  </body>
+      }, 3000);
+    </script>
+</body>
+
 </html>
