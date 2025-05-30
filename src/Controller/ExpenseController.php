@@ -13,6 +13,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -101,10 +102,10 @@ class ExpenseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $newAmount = $expense->getAmount();
             $difference = $newAmount - $originalAmount;
-            
+
             $account = $expense->getAccount();
             $account->setBalance($account->getBalance() - $difference);
-            
+
             $newAccount = $expense->getAccount()->getName();
 
             if ($newAccount !== $originalAccount->getName()) { 
@@ -135,5 +136,26 @@ class ExpenseController extends AbstractController
 
         $this->addFlash('success', 'Expense deleted successfully');
         return $this->redirectToRoute('app_expense');
+    }
+
+    #[Route('/dashboard/expense/chart', 'app_expense_chart')]
+    public function getChartDate(ExpenseRepository $expenseRepository)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
+        $results = $expenseRepository->getExpenseChartDataByCategory($user);
+        
+        $labels = [];
+        $data = [];
+
+        foreach ($results as $result) {
+            $labels[] = $result['Category'];
+            $data[] = $result['totalAmount'];
+        }
+
+        return new JsonResponse([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
     }
 }

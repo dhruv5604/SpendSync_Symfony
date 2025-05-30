@@ -16,6 +16,16 @@ class AccountRepository extends ServiceEntityRepository
         parent::__construct($registry, Account::class);
     }
 
+    public function getAccountChartDataByCategory($user)
+    {
+        return $this->createQueryBuilder('e')
+            ->select('e.name, e.balance as totalAmount')
+            ->where('e.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     //    /**
     //     * @return Account[] Returns an array of Account objects
     //     */

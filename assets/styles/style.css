@@ -92,7 +92,6 @@ nav {
   margin-top: 5px;
 }
 
-/*============= Header Content ======*/
 .header-content {
   margin-top: 4rem;
   padding: 0 3.125rem 0 3.125rem;
@@ -134,7 +133,6 @@ nav {
   color: white;
 }
 
-/*============= Section app-preview ======*/
 section.app-preview {
   display: flex;
   align-items: center;
@@ -193,7 +191,6 @@ p.section-paragraph {
   border-bottom: 10px solid rgba(65, 241, 182, 0.5);
 }
 
-/*============= Section Track your spending ======*/
 .track-your-spending {
   margin-top: 10rem;
   padding: 0 3.125rem 0 3.125rem;
@@ -215,7 +212,6 @@ p.section-paragraph {
   width: 600px;
 }
 
-/*============= Mobile Menu ======*/
 .menu {
   display: none;
 }
@@ -323,7 +319,6 @@ p.section-paragraph {
   width: 2.8rem;
 }
 
-/*============= Section Get in touch with me ======*/
 .get-in-touch.container{
   background-color: transparent;
 }
@@ -356,7 +351,6 @@ section.get-in-touch a.get-started {
   padding: 1.5rem 5rem;
 }
 
-/*============= Footer ======*/
 
 footer {
   margin-top: -320px;
@@ -421,9 +415,6 @@ footer {
   color: #810ae6 ;
 }
 
-
-
-/*========= Loading Screen =========*/
 .loader-overlay{
   position: fixed;
   top: 0;

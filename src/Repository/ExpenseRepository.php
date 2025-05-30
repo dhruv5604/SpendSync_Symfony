@@ -28,28 +28,14 @@ class ExpenseRepository extends ServiceEntityRepository
                 ->setParameter('user', $user);
     }
 
-    //    /**
-    //     * @return Expense[] Returns an array of Expense objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Expense
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function getExpenseChartDataByCategory($user)
+    {
+        return $this->createQueryBuilder('e')
+            ->select('e.Category, SUM(e.Amount) as totalAmount')
+            ->where('e.user = :user')
+            ->setParameter('user', $user)
+            ->groupBy('e.Category')
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

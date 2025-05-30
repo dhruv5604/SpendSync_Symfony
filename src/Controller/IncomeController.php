@@ -10,6 +10,7 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -129,4 +130,26 @@ class IncomeController extends AbstractController
         $this->addFlash('success', 'Income deleted successfully');
         return $this->redirectToRoute('app_income');
     }
+    
+    #[Route('/dashboard/income/chart','app_income_chart')]
+    public function getIncomeChartData(IncomeRepository $incomeRepository)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
+
+        $results = $incomeRepository->findIncomeChartDataByCategory($user);
+
+        $labels = [];
+        $data = [];
+
+        foreach ($results as $result) {
+            $labels[] = $result['category'];
+            $data[] = $result['total'];
+        }
+
+        return new JsonResponse([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
+    }        
 }

@@ -28,6 +28,17 @@ class IncomeRepository extends ServiceEntityRepository
                 ->setParameter('user', $user);
     }
 
+    public function getIncomeChartDataByCategory($user)
+    {
+        return $this->createQueryBuilder('i')
+            ->select('i.category, SUM(i.amount) as total')
+            ->where('i.user = :user')
+            ->setParameter('user', $user)
+            ->groupBy('i.category')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     //    /**
     //     * @return Income[] Returns an array of Income objects
     //     */

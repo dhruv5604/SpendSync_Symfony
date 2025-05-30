@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -98,7 +99,7 @@ class AccountController extends AbstractController
         ]);
     }
 
-    #[Route('dashboard/account/delete/{id}', 'app_delete_account')]
+    #[Route('/dashboard/account/delete/{id}', 'app_delete_account')]
     public function deleteAccount(int $id, AccountRepository $accountRepository, EntityManagerInterface $entityManager)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -118,5 +119,26 @@ class AccountController extends AbstractController
 
         $this->addFlash('success', 'Account deleted successfully');
         return $this->redirectToRoute('app_account');
+    }
+
+    #[Route('/dashboard/account/chart', 'app_account_chart')]
+    public function getAccountChartDataByCategory(AccountRepository $accountRepository)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
+        $results = $accountRepository->getAccountChartDataByCategory($user);
+        
+        $labels = [];
+        $data = [];
+
+        foreach ($results as $result) {
+            $labels[] = $result['name'];
+            $data[] = $result['totalAmount'];
+        }
+
+        return new JsonResponse([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
     }
 }
