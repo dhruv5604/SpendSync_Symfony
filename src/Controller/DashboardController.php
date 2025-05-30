@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Account;
 use App\Entity\Expense;
 use App\Entity\Income;
-use App\Repository\ExpenseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
