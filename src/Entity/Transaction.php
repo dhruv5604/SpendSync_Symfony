@@ -35,6 +35,9 @@ class Transaction
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    private ?Account $account = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -88,12 +91,12 @@ class Transaction
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUserId(?User $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 
@@ -121,6 +124,18 @@ class Transaction
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getAccount(): ?Account
+    {
+        return $this->account;
+    }
+
+    public function setAccount(?Account $account): static
+    {
+        $this->account = $account;
 
         return $this;
     }

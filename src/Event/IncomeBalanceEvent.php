@@ -4,6 +4,7 @@ namespace App\Event;
 
 use App\Entity\Account;
 use App\Entity\Income;
+use App\Entity\Transaction;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class IncomeBalanceEvent extends Event
@@ -11,22 +12,22 @@ class IncomeBalanceEvent extends Event
     public const NAME = 'income.updateBalance';
     public function __construct(
         private Account $originalAccount,
-        private Income $income, 
+        private Transaction $transaction, 
         private float $originalAmount
     ) {}
 
-    public function getOriginalAccount()
-    {
-        return $this->originalAccount;
-    }
-
-    public function getIncome()
-    {
-        return $this->income;
+    public function getTransaction() 
+    { 
+        return $this->transaction; 
     }
 
     public function getOriginalAmount() 
     { 
         return $this->originalAmount; 
+    }
+
+    public function getOriginalAccount() 
+    { 
+        return $this->originalAccount; 
     }
 }

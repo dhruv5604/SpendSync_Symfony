@@ -2,25 +2,23 @@
 
 namespace App\Controller;
 
-use App\Entity\Expense;
+use App\Entity\Transaction;
 use App\Event\ExpenseBalanceEvent;
-use App\Form\ExpenseTypeForm;
-use App\Repository\ExpenseRepository;
+use App\Form\TransactionTypeForm;
+use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ExpenseController extends AbstractController
 {
     #[Route('dashboard/expense', "app_expense")]
-    public function expense(Request $request, ExpenseRepository $expenseRepository, Security $security)
+    public function expense(Request $request, TransactionRepository $transactionRepository, Security $security)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $security->getUser();
@@ -28,17 +26,19 @@ class ExpenseController extends AbstractController
         $search = $request->query->get('q');
 
         if ($search) {
-            $queryBuilder = $expenseRepository->search($search, $user);
+            $queryBuilder = $transactionRepository->search($search, $user, 'expense');
         } else {
-            $queryBuilder = $expenseRepository->createQueryBuilder('e')
-                ->where('e.user= :user')
+            $queryBuilder = $transactionRepository->createQueryBuilder('e')
+                ->andWhere('e.user= :user')
+                ->andWhere('e.type = :type')
+                ->setParameter('type', 'expense')
                 ->setParameter('user', $user);
         }
         $adapter = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);
         $pagerfanta->setMaxPerPage(7);
         $pagerfanta->setCurrentPage($request->query->getInt('page', 1));
-
+        
         return $this->render('/dashboard/expense.html.twig', [
             "expenses" => $pagerfanta,
         ]);
@@ -49,20 +49,23 @@ class ExpenseController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $expense = new Expense();
+        $transaction = new Transaction();
 
-        $form = $this->createForm(ExpenseTypeForm::class, $expense, [
+        $form = $this->createForm(TransactionTypeForm::class, $transaction,[
             'user' => $this->getUser(),
+            'type' => 'expense',
         ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $expense->setUser($security->getUser());
-            $accountBalance = $expense->getAccount()->getBalance();
-            $expense->getAccount()->setBalance($accountBalance - $expense->getAmount());
+            $transaction->setUser($security->getUser());
+            $transaction->setType('expense');
+            $accountBalance = $transaction->getAccount()->getBalance();
+            $transaction->getAccount()->setBalance($accountBalance - $transaction->getAmount());
 
-            $entityManager->persist($expense);
+            $entityManager->persist($transaction);
             $entityManager->flush();
 
             $this->addFlash('success', 'Expense added successfully');
@@ -70,18 +73,19 @@ class ExpenseController extends AbstractController
             return $this->redirectToRoute('app_expense');
         }
 
-        return $this->render('dashboard/expense-form.html.twig', [
+        return $this->render('dashboard/transaction-form.html.twig', [
             'form' => $form->createView(),
+            'type' => 'expense',
             'formTitle' => 'Add Expense',
         ]);
     }
 
     #[Route("/dashboard/expense/edit/{id}", "app_edit_expense")]
-    public function editExpense(int $id, Request $request, EntityManagerInterface $entityManager, ExpenseRepository $expenseRepository, EventDispatcherInterface $eventDispatcher)
+    public function editExpense(int $id, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $expense = $expenseRepository->find($id);
+        $expense = $transactionRepository->find($id);
         $originalAccount = $expense->getAccount();
 
         if (!$expense) {
@@ -94,8 +98,9 @@ class ExpenseController extends AbstractController
 
         $originalAmount = $expense->getAmount();
         
-        $form = $this->createForm(ExpenseTypeForm::class, $expense, [
+        $form = $this->createForm(TransactionTypeForm::class, $expense, [
             'user' => $this->getUser(),
+            'type' => 'expense',
         ]);
         $form->handleRequest($request);
 
@@ -120,42 +125,22 @@ class ExpenseController extends AbstractController
             return $this->redirectToRoute('app_expense');
         }
 
-        return $this->render('dashboard/expense-form.html.twig', [
+        return $this->render('dashboard/transaction-form.html.twig', [
             "form" => $form->createView(),
+            "type" => 'expense',
             "formTitle" => "Edit Expense",
         ]);
     }
 
     #[Route('dashboard/expense/delete/{id}', 'app_delete_expense')]
-    public function deleteExpense(int $id, ExpenseRepository $expenseRepository, EntityManagerInterface $entityManager)
+    public function deleteExpense(int $id, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager)
     {
-        $expense = $expenseRepository->find($id);
+        $expense = $transactionRepository->find($id);
 
         $entityManager->remove($expense);
         $entityManager->flush();
 
         $this->addFlash('success', 'Expense deleted successfully');
         return $this->redirectToRoute('app_expense');
-    }
-
-    #[Route('/dashboard/expense/chart', 'app_expense_chart')]
-    public function getChartDate(ExpenseRepository $expenseRepository)
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = $this->getUser();
-        $results = $expenseRepository->getExpenseChartDataByCategory($user);
-        
-        $labels = [];
-        $data = [];
-
-        foreach ($results as $result) {
-            $labels[] = $result['Category'];
-            $data[] = $result['totalAmount'];
-        }
-
-        return new JsonResponse([
-            'labels' => $labels,
-            'data' => $data,
-        ]);
     }
 }

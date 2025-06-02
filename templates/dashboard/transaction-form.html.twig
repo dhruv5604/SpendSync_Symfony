@@ -5,8 +5,13 @@
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
+    {% if type == "expense" %}
       <li class="breadcrumb-item"><a href="{{ path('app_expense') }}">Expenses</a></li>
       <li class="breadcrumb-item active" aria-current="page">Add Expenses</li>
+    {% elseif type == "income" %}
+      <li class="breadcrumb-item"><a href="{{ path('app_income') }}">Income</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Income</li>
+    {% endif %}
     </ol>
   </nav>  
 
@@ -18,7 +23,7 @@
         {{ form_row(form.category) }}
         {{ form_row(form.account) }}
         {{ form_row(form.description) }}
-        {{ form_row(form.expense_date) }}
+        {{ form_row(form.transaction_date) }}
         <button type="submit" class="btn btn-primary">Add Expense</button>
       {{ form_end(form) }}
 

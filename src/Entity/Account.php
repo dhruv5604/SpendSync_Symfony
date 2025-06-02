@@ -24,17 +24,16 @@ class Account
     #[ORM\ManyToOne(inversedBy: 'accounts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
-
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: Expense::class)]
-    private Collection $expenses;
-
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: Income::class)]
-    private Collection $incomes;
+    
+    /**
+     * @var Collection<int, Transaction>
+     */
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'account')]
+    private Collection $transactions;
 
     public function __construct()
     {
-        $this->expenses = new ArrayCollection();
-        $this->incomes = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -78,55 +77,33 @@ class Account
         return $this;
     }
 
-    public function getExpenses(): Collection
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransactions(): Collection
     {
-        return $this->expenses;
+        return $this->transactions;
     }
 
-    public function addExpense(Expense $expense): static
+    public function addTransaction(Transaction $transaction): static
     {
-        if (!$this->expenses->contains($expense)) {
-            $this->expenses[] = $expense;
-            $expense->setAccount($this);
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setAccount($this);
         }
 
         return $this;
     }
 
-    public function removeExpense(Expense $expense): static
+    public function removeTransaction(Transaction $transaction): static
     {
-        if ($this->expenses->removeElement($expense)) {
-            if ($expense->getAccount() === $this) {
-                $expense->setAccount(null);
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getAccount() === $this) {
+                $transaction->setAccount(null);
             }
         }
 
         return $this;
     }
-
-    public function getIncome(): Collection
-    {
-        return $this->incomes;
-    }
-
-    public function addIncome(Income $income): static
-{
-    if (!$this->incomes->contains($income)) {
-        $this->incomes->add($income);
-        $income->setAccount($this);
-    }
-
-    return $this;
-}
-
-public function removeIncome(Income $income): static
-{
-    if ($this->incomes->removeElement($income)) { 
-        if ($income->getAccount() === $this) {
-            $income->setAccount(null);
-        }
-    }
-
-    return $this;
-}
 }

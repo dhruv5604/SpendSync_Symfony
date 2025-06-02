@@ -16,7 +16,7 @@ class IncomeBalanceListener
 
     public function onIncomeUpdate(IncomeBalanceEvent $event)
     {
-        $income = $event->getIncome();
+        $income = $event->getTransaction();
         $originalAccount = $event->getOriginalAccount();
         $originalAmount = $event->getOriginalAmount();
         $newAmount = $income->getAmount();

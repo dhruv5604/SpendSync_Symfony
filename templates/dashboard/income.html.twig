@@ -57,7 +57,7 @@
                             <td>{{ income.Category }}</td>
                             <td>{{ income.description }}</td>
                             <td>{{ income.account.name }}</td>
-                            <td>{{ income.incomeDate|date('d-m-Y') }}</td>
+                            <td>{{ income.transactiondate|date('d-m-Y') }}</td>
                             <td>
                                 <a href="{{ path('app_edit_income',{'id': income.id}) }}" class="btn btn-secondary">Edit</a>
                                 <a href="{{ path('app_delete_income',{'id': income.id}) }}" class="btn btn-secondary">Delete</a>
@@ -65,7 +65,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td>No Incomes Found...</td>
+                            <td colspan="6">No Incomes Found...</td>
                         </tr>
                     {% endfor %}
                 </tbody>

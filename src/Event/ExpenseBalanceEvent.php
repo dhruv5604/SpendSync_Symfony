@@ -4,17 +4,18 @@ namespace App\Event;
 
 use App\Entity\Account;
 use App\Entity\Expense;
+use App\Entity\Transaction;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class ExpenseBalanceEvent extends Event
 {
     public const NAME = 'expense.updateBalance';
     private Account $originalAccount;
-    private Expense $expense;
-    public function __construct(Account $originalAccount, Expense $expense)
+    private Transaction $transaction;
+    public function __construct(Account $originalAccount, Transaction $transaction)
     {
         $this->originalAccount = $originalAccount;
-        $this->expense = $expense;
+        $this->transaction = $transaction;
     }
 
     public function getOriginalAccount()
@@ -22,8 +23,8 @@ class ExpenseBalanceEvent extends Event
         return $this->originalAccount;
     }
 
-    public function getExpense()
+    public function getTransaction()
     {
-        return $this->expense;
+        return $this->transaction;
     }
 }

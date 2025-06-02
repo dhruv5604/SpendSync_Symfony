@@ -1,23 +1,22 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\Income;
+use App\Entity\Transaction;
 use App\Event\IncomeBalanceEvent;
-use App\Form\IncomeTypeForm;
-use App\Repository\IncomeRepository;
+use App\Form\TransactionTypeForm;
+use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class IncomeController extends AbstractController
 {
     #[Route('/dashboard/income', 'app_income')]
-    public function income(IncomeRepository $incomeRepository, Request $request)
+    public function income(TransactionRepository $transactionRepository, Request $request)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $this->getUser();
@@ -25,10 +24,12 @@ class IncomeController extends AbstractController
         $search = $request->query->get('q');
 
         if ($search) {
-            $queryBuilder = $incomeRepository->search($search, $user);
+            $queryBuilder = $transactionRepository->search($search, $user, 'income');
         } else {
-            $queryBuilder = $incomeRepository->createQueryBuilder('i')
+            $queryBuilder = $transactionRepository->createQueryBuilder('i')
                 ->where('i.user= :user')
+                ->andWhere('i.type = :type')
+                ->setParameter('type', 'income')
                 ->setParameter('user', $user);
         }
 
@@ -47,16 +48,17 @@ class IncomeController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $income = new Income();
+        $income = new Transaction();
 
-        $form = $this->createForm(IncomeTypeForm::class, $income, [
+        $form = $this->createForm(TransactionTypeForm::class, $income, [
             'user' => $this->getUser(),
+            'type' => 'income',
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $income->setUser($this->getUser());
-
+            $income->setType('income');
             $accountBalance = $income->getAccount()->getBalance();
             $income->getAccount()->setBalance($accountBalance + $income->getAmount());
 
@@ -67,18 +69,19 @@ class IncomeController extends AbstractController
             return $this->redirectToRoute('app_income');
         }
 
-        return $this->render('dashboard/income-form.html.twig', [
+        return $this->render('dashboard/transaction-form.html.twig', [
             'form'      => $form->createView(),
+            'type'      => 'income',
             'formTitle' => 'Add Income',
         ]);
     }
 
     #[Route('/dashboard/income/edit/{id}', name: 'app_edit_income')]
-    public function editIncome(int $id, Request $request, IncomeRepository $incomeRepository, EntityManagerInterface $entityManager, EventDispatcherInterface $eventDispatcher) 
+    public function editIncome(int $id, Request $request, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager, EventDispatcherInterface $eventDispatcher) 
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $income = $incomeRepository->find($id);
+        $income = $transactionRepository->find($id);
         $originalAccount = $income->getAccount();
 
         if (! $income) {
@@ -91,8 +94,9 @@ class IncomeController extends AbstractController
 
         $originalAmount = $income->getAmount();
         
-        $form = $this->createForm(IncomeTypeForm::class, $income, [
+        $form = $this->createForm(TransactionTypeForm::class, $income, [
             'user' => $this->getUser(),
+            'type' => 'income',
         ]);
         $form->handleRequest($request);
 
@@ -113,16 +117,17 @@ class IncomeController extends AbstractController
             return $this->redirectToRoute('app_income');
         }
 
-        return $this->render('dashboard/income-form.html.twig', [
+        return $this->render('dashboard/transaction-form.html.twig', [
             'form'      => $form->createView(),
+            'type'      => 'income',
             'formTitle' => 'Edit Income',
         ]);
     }
 
     #[Route('/dashboard/income/delete/{id}', 'app_delete_income')]
-    public function deleteIncome(int $id, IncomeRepository $incomeRepository, Request $request, EntityManagerInterface $entityManager)
+    public function deleteIncome(int $id, TransactionRepository $transactionRepository, Request $request, EntityManagerInterface $entityManager)
     {
-        $income = $incomeRepository->find($id);
+        $income = $transactionRepository->find($id);
 
         $entityManager->remove($income);
         $entityManager->flush();
@@ -130,26 +135,4 @@ class IncomeController extends AbstractController
         $this->addFlash('success', 'Income deleted successfully');
         return $this->redirectToRoute('app_income');
     }
-    
-    #[Route('/dashboard/income/chart','app_income_chart')]
-    public function getIncomeChartData(IncomeRepository $incomeRepository)
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = $this->getUser();
-
-        $results = $incomeRepository->findIncomeChartDataByCategory($user);
-
-        $labels = [];
-        $data = [];
-
-        foreach ($results as $result) {
-            $labels[] = $result['category'];
-            $data[] = $result['total'];
-        }
-
-        return new JsonResponse([
-            'labels' => $labels,
-            'data' => $data,
-        ]);
-    }        
 }

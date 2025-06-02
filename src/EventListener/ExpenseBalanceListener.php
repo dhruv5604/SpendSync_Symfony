@@ -16,7 +16,7 @@ class ExpenseBalanceListener
 
     public function onExpenseUpdate(ExpenseBalanceEvent $event)
     {
-        $expense = $event->getExpense();
+        $expense = $event->getTransaction();
         $originalAccount = $event->getOriginalAccount();
 
         $amount = $expense->getAmount();

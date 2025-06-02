@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Account;
-use App\Entity\Expense;
-use App\Entity\Income;
+use App\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,12 +23,15 @@ class DashboardController extends AbstractController
     #[Route('/dashboard', name: 'app_dashboard')]
     public function dashboard()
     {
-        $expenseChart = $this->expenseChart();
-        $incomeChart = $this->incomeChart();
         $accountChart = $this->accountChart();
-        $totalExpense = $this->totalExpense();
-        $totalIncome = $this->totalIncome();
-        $totalAccountBalance = $this->totalAccountBalance();
+        $expenseChart = $this->getChart('expense');
+        $incomeChart = $this->getChart('income');
+        $totalExpense = $this->getRepository(Transaction::class)
+            ->getTotalAmountByType('expense', $this->getUser());
+        $totalIncome = $this->getRepository(Transaction::class)
+            ->getTotalAmountByType('income', $this->getUser());
+        $totalAccountBalance = $this->getRepository(Account::class)->getTotalAccountBalance($this->getUser());
+        $recentTransactions = $this->getRepository(Transaction::class)->getRecentTransactions($this->getUser());
         
         return $this->render('dashboard/dashboard.html.twig',[
             'expenseChart' => $expenseChart,
@@ -37,121 +39,47 @@ class DashboardController extends AbstractController
             'accountChart' => $accountChart,
             'totalExpense' => $totalExpense,
             'totalIncome' => $totalIncome,
-            'totalAccountBalance' => $totalAccountBalance
+            'totalAccountBalance' => $totalAccountBalance,
+            'recentTransactions' => $recentTransactions,
         ]);
     }
 
-    public function totalExpense()
+    public function getChart(string $type)
     {
-        return $this->entityManager->getRepository(Expense::class)
-                ->createQueryBuilder('q')
-                ->select('SUM(q.Amount) as totalExpense')
-                ->andWhere('q.user= :user')
-                ->setParameter('user', $this->getUser())
-                ->getQuery()
-                ->getSingleScalarResult();
-    }
-
-    public function totalIncome()
-    {
-        return $this->entityManager->getRepository(Income::class)
-                ->createQueryBuilder('q')
-                ->select('SUM(q.amount) as totalIncome')
-                ->andWhere('q.user= :user')
-                ->setParameter('user', $this->getUser())
-                ->getQuery()
-                ->getSingleScalarResult();
-    }
-
-    public function totalAccountBalance()
-    {
-        return $this->entityManager->getRepository(Account::class)
-                ->createQueryBuilder('q')
-                ->select('SUM(q.balance) as totalAmount')
-                ->andWhere('q.user= :user')
-                ->setParameter('user', $this->getUser())
-                ->getQuery()
-                ->getSingleScalarResult();
-    }
-
-    public function expenseChart()
-    {
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-        $results = $this->entityManager->getRepository(Expense::class)
-            ->getExpenseChartDataByCategory($this->getUser());
-                
-        $labels = [];
-        $data = [];
-        foreach ($results as $result) {
-            $labels[] = $result['Category'];
-            $data[] = $result['totalAmount'];
-        }
-
-        $chart->setData([
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'label' => ' by CatExpensesegory',
-                    'backgroundColor' => ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                    'data' => $data,
-                ],
-            ],
-        ]);
-        return $chart;
-    }
-
-    public function incomeChart()
-    {
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-        $results = $this->entityManager->getRepository(Income::class)
-            ->getIncomeChartDataByCategory($this->getUser());
-                
-        $labels = [];
-        $data = [];
-        foreach ($results as $result) {
-            $labels[] = $result['category'];
-            $data[] = $result['total'];
-        }
-
-        $chart->setData([
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'label' => 'Expenses by Category',
-                    'backgroundColor' => ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                    'data' => $data,
-                ],
-            ],
-        ]);
-        return $chart;
+        $results = $this->getRepository(Transaction::class)
+            ->getChartDataByCategory($this->getUser(), $type);
+        
+        return $this->prepareDoughnutChart($results, $type . ' by category');
     }
 
     public function accountChart()
     {
-        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-        $results = $this->entityManager->getRepository(Account::class)
+        $results = $this->getRepository(Account::class)
             ->getAccountChartDataByCategory($this->getUser());
-        
-        $labels = [];
-        $data = [];
 
-        foreach ($results as $result) {
-            $labels[] = $result['name'];
-            $data[] = $result['totalAmount'];
-        }
+        return $this->prepareDoughnutChart($results, 'Account');
+    }
+
+    private function prepareDoughnutChart(array $results, string $label)
+    {
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+
+        $labels = array_column($results, array_key_exists('category', $results[0]) ? 'category' : 'name');
+        $data = array_column($results, 'totalAmount');
 
         $chart->setData([
             'labels' => $labels,
-            'datasets' => [
-                [
-                    'label' => 'Accounts by Category',
-                    'backgroundColor' => ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                    'data' => $data,
-                ],
-            ],
+            'datasets' => [[
+                'label' => $label,
+                'backgroundColor' => ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                'data' => $data,    
+            ]]
         ]);
-        return $chart;
-        
-    }
 
+        return $chart;
+    }
+    
+    public function getRepository($class){
+        return $this->entityManager->getRepository($class);
+    }
 }

@@ -37,18 +37,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $plainPassword;
 
     /**
-     * @var Collection<int, Expense>
-     */
-    #[ORM\OneToMany(targetEntity: Expense::class, mappedBy: 'user')]
-    private Collection $expenses;
-
-    /**
-     * @var Collection<int, Income>
-     */
-    #[ORM\OneToMany(targetEntity: Income::class, mappedBy: 'user')]
-    private Collection $incomes;
-
-    /**
      * @var Collection<int, Account>
      */
     #[ORM\OneToMany(targetEntity: Account::class, mappedBy: 'user')]
@@ -62,8 +50,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->expenses = new ArrayCollection();
-        $this->incomes = new ArrayCollection();
         $this->accounts = new ArrayCollection();
         $this->transactions = new ArrayCollection();
     }
@@ -165,66 +151,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Expense>
-     */
-    public function getExpenses(): Collection
-    {
-        return $this->expenses;
-    }
-
-    public function addExpense(Expense $expense): static
-    {
-        if (!$this->expenses->contains($expense)) {
-            $this->expenses->add($expense);
-            $expense->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeExpense(Expense $expense): static
-    {
-        if ($this->expenses->removeElement($expense)) {
-            // set the owning side to null (unless already changed)
-            if ($expense->getUser() === $this) {
-                $expense->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Income>
-     */
-    public function getIncomes(): Collection
-    {
-        return $this->incomes;
-    }
-
-    public function addIncome(Income $income): static
-    {
-        if (!$this->incomes->contains($income)) {
-            $this->incomes->add($income);
-            $income->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeIncome(Income $income): static
-    {
-        if ($this->incomes->removeElement($income)) {
-            // set the owning side to null (unless already changed)
-            if ($income->getUser() === $this) {
-                $income->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Account>
      */
     public function getAccounts(): Collection
@@ -266,7 +192,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
-            $transaction->setUserId($this);
+            $transaction->setUser($this);
         }
 
         return $this;
@@ -276,8 +202,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)
-            if ($transaction->getUserId() === $this) {
-                $transaction->setUserId(null);
+            if ($transaction->getUser() === $this) {
+                $transaction->setUser(null);
             }
         }
 
