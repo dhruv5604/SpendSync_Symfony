@@ -38,6 +38,9 @@ class Transaction
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     private ?Account $account = null;
 
+    #[ORM\Column]
+    private ?bool $is_split = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -136,6 +139,18 @@ class Transaction
     public function setAccount(?Account $account): static
     {
         $this->account = $account;
+
+        return $this;
+    }
+
+    public function isSplit(): ?bool
+    {
+        return $this->is_split;
+    }
+
+    public function setIsSplit(bool $is_split): static
+    {
+        $this->is_split = $is_split;
 
         return $this;
     }

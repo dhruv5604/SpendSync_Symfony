@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Friend Management | SpendSync{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="mb-4">Manage Friends</h2>
+
+    <div class="card mb-5">
+        <div class="card-header bg-primary text-white">
+            Add a New Friend
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.user2) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.category) }}
+                    </div>
+                </div>
+                <button class="btn btn-success mt-3">Add Friend</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {# Friend List #}
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            Your Friends List
+        </div>
+        <div class="card-body">
+            {% if friends is not empty %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for friend in friends %}
+                            <tr>
+                                <td>{{ friend.name }}</td>
+                                <td>{{ friend.email }}</td>
+                                <td>{{ friend.category|default('Uncategorized') }}</td>
+                                <td>
+                                    <a href="{{ path('friend_edit', { id: friend.id }) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="{{ path('friend_delete', { id: friend.id }) }}" class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Are you sure you want to delete this friend?')">Delete</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">You haven't added any friends yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+  $(document).ready(function() {
+    $('.select2').select2({
+      placeholder: "Search for a user",
+      allowClear: true
+    });
+  });
+</script>
+
+{% endblock %}

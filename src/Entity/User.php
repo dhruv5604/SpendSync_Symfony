@@ -48,10 +48,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user_id')]
     private Collection $transactions;
 
+    /**
+     * @var Collection<int, Friendships>
+     */
+    #[ORM\OneToMany(targetEntity: Friendships::class, mappedBy: 'user1')]
+    private Collection $friendships;
+
     public function __construct()
     {
         $this->accounts = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->friendships = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -204,6 +211,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($transaction->getUser() === $this) {
                 $transaction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Friendships>
+     */
+    public function getFriendships(): Collection
+    {
+        return $this->friendships;
+    }
+
+    public function addFriendship(Friendships $friendship): static
+    {
+        if (!$this->friendships->contains($friendship)) {
+            $this->friendships->add($friendship);
+            $friendship->setUser1($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFriendship(Friendships $friendship): static
+    {
+        if ($this->friendships->removeElement($friendship)) {
+            // set the owning side to null (unless already changed)
+            if ($friendship->getUser1() === $this) {
+                $friendship->setUser1(null);
             }
         }
 
