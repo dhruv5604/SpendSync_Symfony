@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TransactionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
@@ -37,6 +39,17 @@ class Transaction
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     private ?Account $account = null;
+
+    /**
+     * @var Collection<int, SplitTransactions>
+     */
+    #[ORM\OneToMany(targetEntity: SplitTransactions::class, mappedBy: 'parent_transaction_id')]
+    private Collection $splitTransactions;
+
+    public function __construct()
+    {
+        $this->splitTransactions = new ArrayCollection();
+    }
 
     #[ORM\Column]
     private ?bool $is_split = null;
@@ -151,6 +164,36 @@ class Transaction
     public function setIsSplit(bool $is_split): static
     {
         $this->is_split = $is_split;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SplitTransactions>
+     */
+    public function getSplitTransactions(): Collection
+    {
+        return $this->splitTransactions;
+    }
+
+    public function addSplitTransaction(SplitTransactions $splitTransaction): static
+    {
+        if (!$this->splitTransactions->contains($splitTransaction)) {
+            $this->splitTransactions->add($splitTransaction);
+            $splitTransaction->setParentTransaction($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSplitTransaction(SplitTransactions $splitTransaction): static
+    {
+        if ($this->splitTransactions->removeElement($splitTransaction)) {
+            // set the owning side to null (unless already changed)
+            if ($splitTransaction->getParentTransaction() === $this) {
+                $splitTransaction->setParentTransaction(null);
+            }
+        }
 
         return $this;
     }

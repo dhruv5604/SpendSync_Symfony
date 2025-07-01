@@ -21,9 +21,17 @@ class FriendshipTypeForm extends AbstractType
             'choice_label' => 'username',
             'required' => true,
             'query_builder' => function (EntityRepository $er) use ($options) {
+                $currentUser = $options['current_user'];
+        
                 return $er->createQueryBuilder('u')
                     ->where('u != :currentUser')
-                    ->setParameter('currentUser', $options['current_user']);
+                    ->andWhere('u.id NOT IN (
+                        SELECT IDENTITY(f1.user1) FROM App\Entity\Friendships f1 WHERE f1.user2 = :currentUser
+                    )')
+                    ->andWhere('u.id NOT IN (
+                        SELECT IDENTITY(f2.user2) FROM App\Entity\Friendships f2 WHERE f2.user1 = :currentUser
+                    )')
+                    ->setParameter('currentUser', $currentUser);
             },
             'attr' => ['class' => 'select2'],
         ])

@@ -54,11 +54,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Friendships::class, mappedBy: 'user1')]
     private Collection $friendships;
 
+    /**
+     * @var Collection<int, SplitTransactions>
+     */
+    #[ORM\OneToMany(targetEntity: SplitTransactions::class, mappedBy: 'user')]
+    private Collection $splitTransactions;
+
     public function __construct()
     {
         $this->accounts = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->friendships = new ArrayCollection();
+        $this->splitTransactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -241,6 +248,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($friendship->getUser1() === $this) {
                 $friendship->setUser1(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SplitTransactions>
+     */
+    public function getSplitTransactions(): Collection
+    {
+        return $this->splitTransactions;
+    }
+
+    public function addSplitTransaction(SplitTransactions $splitTransaction): static
+    {
+        if (!$this->splitTransactions->contains($splitTransaction)) {
+            $this->splitTransactions->add($splitTransaction);
+            $splitTransaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSplitTransaction(SplitTransactions $splitTransaction): static
+    {
+        if ($this->splitTransactions->removeElement($splitTransaction)) {
+            // set the owning side to null (unless already changed)
+            if ($splitTransaction->getUser() === $this) {
+                $splitTransaction->setUser(null);
             }
         }
 

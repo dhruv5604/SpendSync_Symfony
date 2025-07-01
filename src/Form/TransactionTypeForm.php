@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Account;
+use App\Entity\Friendships;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
@@ -60,6 +61,24 @@ class TransactionTypeForm extends AbstractType
                 ],
             ]);
         }
+
+        $builder->add('splitWithFriends', EntityType::class, [
+        'class' => Friendships::class,
+        'choice_label' => fn($friendship) => $friendship->getUser2()->getUsername(),
+        'multiple' => true,
+        'required' => false,
+        'mapped' => false,
+        'label' => 'Split this expense with',
+        'attr' => ['class' => 'select2'],
+        'query_builder' => function (EntityRepository $repo) use ($user) {
+            return $repo->createQueryBuilder('f')
+                ->andWhere('(f.user1 = :user OR f.user2 = :user)')
+                ->andWhere('f.status = :status')
+                ->setParameter('user', $user)
+                ->setParameter('status', 'accepted');
+        },
+        'placeholder' => 'Select friends (optional)',
+    ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

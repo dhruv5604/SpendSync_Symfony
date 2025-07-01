@@ -1,34 +1,53 @@
-{% extends 'base.html.twig' %}
-
-{% block body %}
+{% extends 'base.html.twig' %} {% block stylesheets %}
+{{ parent() }}
+<link
+  href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css"
+  rel="stylesheet"
+/>
+{% endblock %} {% block body %}
 <div class="container">
-
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-    {% if type == "expense" %}
-      <li class="breadcrumb-item"><a href="{{ path('app_expense') }}">Expenses</a></li>
+      {% if type == "expense" %}
+      <li class="breadcrumb-item">
+        <a href="{{ path('app_expense') }}">Expenses</a>
+      </li>
       <li class="breadcrumb-item active" aria-current="page">Add Expenses</li>
-    {% elseif type == "income" %}
-      <li class="breadcrumb-item"><a href="{{ path('app_income') }}">Income</a></li>
+      {% elseif type == "income" %}
+      <li class="breadcrumb-item">
+        <a href="{{ path('app_income') }}">Income</a>
+      </li>
       <li class="breadcrumb-item active" aria-current="page">Add Income</li>
-    {% endif %}
+      {% endif %}
     </ol>
-  </nav>  
+  </nav>
 
   <div class="card">
     <div class="card-body">
       <h3>{{ formTitle }}</h3>
       {{ form_start(form) }}
-        {{ form_row(form.amount) }}
-        {{ form_row(form.category) }}
-        {{ form_row(form.account) }}
-        {{ form_row(form.description) }}
-        {{ form_row(form.transaction_date) }}
-        <button type="submit" class="btn btn-primary">Add Expense</button>
+      {{ form_row(form.amount) }}
+      {{ form_row(form.category) }}
+      {{ form_row(form.account) }}
+      {{ form_row(form.description) }}
+      {{ form_row(form.transaction_date) }}
+      {{ form_row(form.splitWithFriends) }}
+      <button type="submit" class="btn btn-primary">Add Expense</button>
       {{ form_end(form) }}
-
     </div>
   </div>
-
 </div>
+
+{% endblock %} {% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $(".select2").select2({
+      placeholder: "Select friends (optional)",
+      allowClear: true,
+      width: "100%",
+    });
+  });
+</script>
 {% endblock %}

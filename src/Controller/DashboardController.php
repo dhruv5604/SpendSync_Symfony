@@ -43,6 +43,7 @@ class DashboardController extends AbstractController
             'totalIncome' => $totalIncome,
             'totalAccountBalance' => $totalAccountBalance,
             'recentTransactions' => $recentTransactions,
+            'user' => $this->getUser(),
         ]);
     }
 
@@ -90,9 +91,8 @@ class DashboardController extends AbstractController
             ]]
         ]);
 
-        return $chart;
+        return $chart;  
     }
-
 
     private function getRepository($class)
     {

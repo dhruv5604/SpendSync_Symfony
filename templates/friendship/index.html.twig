@@ -6,6 +6,17 @@
 <div class="container mt-4">
     <h2 class="mb-4">Manage Friends</h2>
 
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+        
     <div class="card mb-5">
         <div class="card-header bg-primary text-white">
             Add a New Friend
@@ -36,7 +47,7 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Email</th>
+                            <th>status</th>
                             <th>Category</th>
                             <th>Actions</th>
                         </tr>
@@ -44,12 +55,14 @@
                     <tbody>
                         {% for friend in friends %}
                             <tr>
-                                <td>{{ friend.name }}</td>
-                                <td>{{ friend.email }}</td>
+                                <td>{{ friend.user2.username }}</td>
                                 <td>{{ friend.category|default('Uncategorized') }}</td>
+                                <td>{{ friend.status }}</td>
                                 <td>
-                                    <a href="{{ path('friend_edit', { id: friend.id }) }}" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="{{ path('friend_delete', { id: friend.id }) }}" class="btn btn-sm btn-danger"
+                                    <a href="{{ path('app_edit_friendship', {
+                                        'id': friend.id
+                                    }) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="#" class="btn btn-sm btn-danger"
                                        onclick="return confirm('Are you sure you want to delete this friend?')">Delete</a>
                                 </td>
                             </tr>
@@ -62,6 +75,7 @@
         </div>
     </div>
 </div>
+
 <script>
   $(document).ready(function() {
     $('.select2').select2({

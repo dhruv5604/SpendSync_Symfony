@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\SplitTransactions;
 use App\Entity\Transaction;
 use App\Event\ExpenseBalanceEvent;
 use App\Form\TransactionTypeForm;
@@ -59,11 +60,23 @@ class ExpenseController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $transaction->setUser($security->getUser());
             $transaction->setType('expense');
             $accountBalance = $transaction->getAccount()->getBalance();
             $transaction->getAccount()->setBalance($accountBalance - $transaction->getAmount());
+            $transaction->setIsSplit(true);
+
+            $friends = $form->get('splitWithFriends')->getData();
+
+            if ($friends) {
+                foreach ($friends as $friend) {
+                    $split = new SplitTransactions();
+                    $split->setParentTransaction($transaction);
+                    $split->setUser($friend->getUser2());
+                    $split->setAmountOwed($transaction->getAmount() / (count($friends)+1));
+                    $entityManager->persist($split);
+                }
+            }
 
             $entityManager->persist($transaction);
             $entityManager->flush();
@@ -102,6 +115,7 @@ class ExpenseController extends AbstractController
             'user' => $this->getUser(),
             'type' => 'expense',
         ]);
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

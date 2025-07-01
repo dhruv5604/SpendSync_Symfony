@@ -16,6 +16,17 @@ class FriendshipsRepository extends ServiceEntityRepository
         parent::__construct($registry, Friendships::class);
     }
 
+    public function findPendingRequests($user, $status='pending')
+    {
+        return $this->createQueryBuilder('q')
+                ->where('q.user2= :user')
+                ->andwhere('q.status= :status')
+                ->setParameter('user', $user)
+                ->setParameter('status', $status)
+                ->getQuery()
+                ->getResult();
+    }
+
     //    /**
     //     * @return Friendships[] Returns an array of Friendships objects
     //     */
