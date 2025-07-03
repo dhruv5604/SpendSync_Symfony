@@ -52,7 +52,7 @@ class Transaction
     }
 
     #[ORM\Column]
-    private ?bool $is_split = null;
+    private ?bool $is_split = false;
 
     public function getId(): ?int
     {

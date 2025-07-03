@@ -28,7 +28,7 @@ security:
             login_throttling: true
             remember_me:
                 secret: '%kernel.secret%'
-                lifetime: 604800
+                lifetime: 604800000
                 path: /
 
             # activate different ways to authenticate

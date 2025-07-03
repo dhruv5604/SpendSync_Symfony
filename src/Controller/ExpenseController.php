@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\SplitTransactions;
@@ -35,11 +34,11 @@ class ExpenseController extends AbstractController
                 ->setParameter('type', 'expense')
                 ->setParameter('user', $user);
         }
-        $adapter = new QueryAdapter($queryBuilder);
+        $adapter    = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);
         $pagerfanta->setMaxPerPage(7);
         $pagerfanta->setCurrentPage($request->query->getInt('page', 1));
-        
+
         return $this->render('/dashboard/expense.html.twig', [
             "expenses" => $pagerfanta,
         ]);
@@ -52,7 +51,7 @@ class ExpenseController extends AbstractController
 
         $transaction = new Transaction();
 
-        $form = $this->createForm(TransactionTypeForm::class, $transaction,[
+        $form = $this->createForm(TransactionTypeForm::class, $transaction, [
             'user' => $this->getUser(),
             'type' => 'expense',
         ]);
@@ -64,18 +63,39 @@ class ExpenseController extends AbstractController
             $transaction->setType('expense');
             $accountBalance = $transaction->getAccount()->getBalance();
             $transaction->getAccount()->setBalance($accountBalance - $transaction->getAmount());
-            $transaction->setIsSplit(true);
 
-            $friends = $form->get('splitWithFriends')->getData();
+            $friends      = $form->get('splitWithFriends')->getData();
+            $splitAmounts = $request->request->all('splitAmounts');
+            $totalSplit  = 0;
 
-            if ($friends) {
-                foreach ($friends as $friend) {
+            if (count($friends) > 0) {
+                $transaction->setIsSplit(true);
+
+                foreach ($friends as $index => $friend) {
+                    $amount = floatval($splitAmounts[$index] ?? 0);
+                    $totalSplit += $amount;
+
                     $split = new SplitTransactions();
                     $split->setParentTransaction($transaction);
                     $split->setUser($friend->getUser2());
-                    $split->setAmountOwed($transaction->getAmount() / (count($friends)+1));
+                    $split->setAmountOwed($amount);
+
                     $entityManager->persist($split);
                 }
+
+                $ownPortion = $transaction->getAmount() - $totalSplit;
+
+                if ($ownPortion < 0) {
+                    $this->addFlash('error', 'Split amounts exceed total expense.');
+                    return $this->redirectToRoute('app_add_expense');
+                }
+
+                $ownSplit = new SplitTransactions();
+                $ownSplit->setParentTransaction($transaction);
+                $ownSplit->setUser($security->getUser());
+                $ownSplit->setAmountOwed($ownPortion);
+
+                $entityManager->persist($ownSplit);
             }
 
             $entityManager->persist($transaction);
@@ -87,8 +107,8 @@ class ExpenseController extends AbstractController
         }
 
         return $this->render('dashboard/transaction-form.html.twig', [
-            'form' => $form->createView(),
-            'type' => 'expense',
+            'form'      => $form->createView(),
+            'type'      => 'expense',
             'formTitle' => 'Add Expense',
         ]);
     }
@@ -98,10 +118,10 @@ class ExpenseController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $expense = $transactionRepository->find($id);
+        $expense         = $transactionRepository->find($id);
         $originalAccount = $expense->getAccount();
 
-        if (!$expense) {
+        if (! $expense) {
             throw $this->createNotFoundException('Expense Not Found');
         }
 
@@ -110,16 +130,16 @@ class ExpenseController extends AbstractController
         }
 
         $originalAmount = $expense->getAmount();
-        
+
         $form = $this->createForm(TransactionTypeForm::class, $expense, [
             'user' => $this->getUser(),
             'type' => 'expense',
         ]);
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newAmount = $expense->getAmount();
+            $newAmount  = $expense->getAmount();
             $difference = $newAmount - $originalAmount;
 
             $account = $expense->getAccount();
@@ -127,7 +147,7 @@ class ExpenseController extends AbstractController
 
             $newAccount = $expense->getAccount()->getName();
 
-            if ($newAccount !== $originalAccount->getName()) { 
+            if ($newAccount !== $originalAccount->getName()) {
                 $event = new ExpenseBalanceEvent($originalAccount, $expense);
                 $eventDispatcher->dispatch($event, ExpenseBalanceEvent::NAME);
             }
@@ -140,8 +160,8 @@ class ExpenseController extends AbstractController
         }
 
         return $this->render('dashboard/transaction-form.html.twig', [
-            "form" => $form->createView(),
-            "type" => 'expense',
+            "form"      => $form->createView(),
+            "type"      => 'expense',
             "formTitle" => "Edit Expense",
         ]);
     }

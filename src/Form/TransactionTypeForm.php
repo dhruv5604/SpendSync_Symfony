@@ -10,7 +10,9 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -63,22 +65,32 @@ class TransactionTypeForm extends AbstractType
         }
 
         $builder->add('splitWithFriends', EntityType::class, [
-        'class' => Friendships::class,
-        'choice_label' => fn($friendship) => $friendship->getUser2()->getUsername(),
-        'multiple' => true,
-        'required' => false,
-        'mapped' => false,
-        'label' => 'Split this expense with',
-        'attr' => ['class' => 'select2'],
-        'query_builder' => function (EntityRepository $repo) use ($user) {
-            return $repo->createQueryBuilder('f')
-                ->andWhere('(f.user1 = :user OR f.user2 = :user)')
-                ->andWhere('f.status = :status')
-                ->setParameter('user', $user)
-                ->setParameter('status', 'accepted');
-        },
-        'placeholder' => 'Select friends (optional)',
-    ]);
+            'class' => Friendships::class,
+            'choice_label' => fn($friendship) => $friendship->getUser2()->getUsername(),
+            'multiple' => true,
+            'required' => false,
+            'mapped' => false,
+            'label' => 'Split this expense with',
+            'attr' => ['class' => 'select2', 'id' => 'splitWithFriends'],
+            'query_builder' => function (EntityRepository $repo) use ($user) {
+                return $repo->createQueryBuilder('f')
+                    ->andWhere('(f.user1 = :user OR f.user2 = :user)')
+                    ->andWhere('f.status = :status')
+                    ->setParameter('user', value: $user)
+                    ->setParameter('status', 'accepted');
+            },
+            'placeholder' => 'Select friends (optional)',
+        ]);
+        
+        $builder->add('splitAmounts', CollectionType::class, [
+            'entry_type' => NumberType::class,
+            'entry_options' => ['label' => false],
+            'mapped' => false,
+            'required' => false,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'attr' => ['class' => 'split-amounts-group d-none'],
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

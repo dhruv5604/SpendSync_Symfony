@@ -8,10 +8,6 @@
   <link rel="shortcut icon" href="{{ asset('build/images/favicon.svg') }}" type="image/x-icon" />
   <title>{% block title %}SpendSync{% endblock %}</title>
 
-  <!-- Add in the <head> -->
-
-  <!-- Add before </body> -->
-
   {% block stylesheets %}
     {{ encore_entry_link_tags("app")  }}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -26,13 +22,11 @@
   
   {% block javascripts %}
     {{  encore_entry_script_tags("app") }}
-    {# // <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script> #}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="/docs/5.3/assets/js/color-modes.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    {# // <script src="../assets/js/material-dashboard.min.js?v=3.2.0"></script> #}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js" integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp" crossorigin="anonymous"></script>
   {% endblock %}
 </head>
@@ -44,13 +38,9 @@
     {% include 'partials/navbar.html.twig' %} {% block body %}{% endblock %}
   </main>
   
-  </h1>
   <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous"></script>
-  {#
-  <script src="{%  'js/main.js' %}"></script>
-  #}
 </body>
 
 </html>
