@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class IncomeController extends AbstractController
 {
-    #[Route('/dashboard/income', 'app_income')]
+    #[Route('/dashboard/incomes', 'app_income')]
     public function income(TransactionRepository $transactionRepository, Request $request)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');

@@ -27,6 +27,10 @@ services:
     App\EventListener\IncomeBalanceListener:
         tags:
             - { name: 'kernel.event_listener', event: 'income.updateBalance', method: 'onIncomeUpdate' }
+    
+    App\EventListener\SplitExpenseNotificationListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'split.expense.notification', method: 'onSplitExpenseNotification' }
 
     App\Twig\AppExtension:
         tags: ['twig.extension']

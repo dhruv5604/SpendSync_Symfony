@@ -27,18 +27,21 @@
           <ul class="dropdown-menu dropdown-menu-end px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
             {% set notifications = get_notifications() %}
             {% for notification in notifications %}
+            {% if notification.showToUser %}
             <li class="mb-2">
               <div class="d-flex py-1">
                 <div class="d-flex flex-column justify-content-center">
                   <h6 class="text-sm font-weight-normal mb-1">
-                    <span class="font-weight-bold">{{ notification.user1.username }}</span> sent a request
+                    <span class="font-weight-bold">{{ notification.message }}</span>
                     <a href="{{ path('app_response_to_request',{
                             'type': 'accept',
-                            'id': notification.id
+                            'id': notification.Receiver.id,
+                            'notificationId': notification.id
                           }) }}"><i class="fa fa-check me-1"></i></a>
                     <a href="{{ path('app_response_to_request', {
-                            'type': 'reject',
-                            'id': notification.id
+                            'type': 'rej+ect',
+                            'id': notification.Receiver.id,
+                            'notificationId': notification.id
                           }) }}"><i class="fa-solid fa-xmark"></i></a>
                   </h6>
                   <p class="text-xs text-secondary mb-0">
@@ -49,6 +52,7 @@
               </div>
               </a>
             </li>
+            {% endif %}
             {% endfor %}
           </ul>
         </li>

@@ -3,7 +3,6 @@
 namespace App\Event;
 
 use App\Entity\Account;
-use App\Entity\Expense;
 use App\Entity\Transaction;
 use Symfony\Contracts\EventDispatcher\Event;
 

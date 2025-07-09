@@ -3,18 +3,19 @@
 namespace App\Twig;
 
 use App\Repository\FriendshipsRepository;
+use App\Repository\NotificationsRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension
 {
-    private $friendshipsRepository;
+    private $notificationsRepository;
     private $security;
 
-    public function __construct(FriendshipsRepository $friendshipsRepository, Security $security)
+    public function __construct(NotificationsRepository $notificationsRepository, Security $security)
     {
-        $this->friendshipsRepository = $friendshipsRepository;
+        $this->notificationsRepository = $notificationsRepository;
         $this->security = $security;
     }
 
@@ -32,6 +33,7 @@ class AppExtension extends AbstractExtension
         if (!$user) {
             return [];
         }
-        return ($this->friendshipsRepository->findPendingRequests($user));
+
+        return ($this->notificationsRepository->findBy(['Receiver' => $user]));
     }
 }

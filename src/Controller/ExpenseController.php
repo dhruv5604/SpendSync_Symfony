@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Entity\SplitTransactions;
 use App\Entity\Transaction;
 use App\Event\ExpenseBalanceEvent;
+use App\Event\SplitExpenseNotification;
 use App\Form\TransactionTypeForm;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ExpenseController extends AbstractController
 {
-    #[Route('dashboard/expense', "app_expense")]
+    #[Route('dashboard/expenses', "app_expense")]
     public function expense(Request $request, TransactionRepository $transactionRepository, Security $security)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -33,7 +34,7 @@ class ExpenseController extends AbstractController
                 ->andWhere('e.type = :type')
                 ->setParameter('type', 'expense')
                 ->setParameter('user', $user);
-        }
+        }   
         $adapter    = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);
         $pagerfanta->setMaxPerPage(7);
@@ -45,7 +46,7 @@ class ExpenseController extends AbstractController
     }
 
     #[Route('dashboard/expense/add', 'app_add_expense')]
-    public function addExpense(Request $request, EntityManagerInterface $entityManager, Security $security)
+    public function addExpense(Request $request, EntityManagerInterface $entityManager, Security $security, EventDispatcherInterface $eventDispatcher)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -64,13 +65,12 @@ class ExpenseController extends AbstractController
             $accountBalance = $transaction->getAccount()->getBalance();
             $transaction->getAccount()->setBalance($accountBalance - $transaction->getAmount());
 
-            $friends      = $form->get('splitWithFriends')->getData();
+            $friends      = $form->get('splitWithFriends')->getData()->toArray();
             $splitAmounts = $request->request->all('splitAmounts');
             $totalSplit  = 0;
 
             if (count($friends) > 0) {
                 $transaction->setIsSplit(true);
-
                 foreach ($friends as $index => $friend) {
                     $amount = floatval($splitAmounts[$index] ?? 0);
                     $totalSplit += $amount;
@@ -83,24 +83,28 @@ class ExpenseController extends AbstractController
                     $entityManager->persist($split);
                 }
 
+                
                 $ownPortion = $transaction->getAmount() - $totalSplit;
-
+                
                 if ($ownPortion < 0) {
                     $this->addFlash('error', 'Split amounts exceed total expense.');
                     return $this->redirectToRoute('app_add_expense');
                 }
-
+                
                 $ownSplit = new SplitTransactions();
                 $ownSplit->setParentTransaction($transaction);
                 $ownSplit->setUser($security->getUser());
-                $ownSplit->setAmountOwed($ownPortion);
-
+                $ownSplit->setAmountOwed(amount_owed: $ownPortion);
+                
                 $entityManager->persist($ownSplit);
             }
-
+            
             $entityManager->persist($transaction);
             $entityManager->flush();
-
+            
+            $event = new SplitExpenseNotification($friends, $splitAmounts);
+            $eventDispatcher->dispatch($event, 'split.expense.notification');
+            
             $this->addFlash('success', 'Expense added successfully');
 
             return $this->redirectToRoute('app_expense');
