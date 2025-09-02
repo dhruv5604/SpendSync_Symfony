@@ -16,9 +16,24 @@ services:
     App\:
         resource: '../src/'
         exclude:
-            - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/DependencyInjection/'
+
+    App\EventListener\ExpenseBalanceListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'expense.updateBalance', method: 'onExpenseUpdate' }
+    
+    App\EventListener\IncomeBalanceListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'income.updateBalance', method: 'onIncomeUpdate' }
+    
+    App\EventListener\SplitExpenseNotificationListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'split.expense.notification', method: 'onSplitExpenseNotification' }
+
+    App\Twig\AppExtension:
+        tags: ['twig.extension']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

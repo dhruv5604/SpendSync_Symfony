@@ -7,14 +7,33 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "babdev/pagerfanta-bundle": "^4.5",
+        "doctrine/dbal": "^3",
+        "doctrine/doctrine-bundle": "^2.14",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/orm": "^3.3",
+        "knplabs/knp-paginator-bundle": "^6.8",
+        "pagerfanta/doctrine-orm-adapter": "^4.7",
+        "pagerfanta/twig": "^4.7",
+        "stof/doctrine-extensions-bundle": "^1.14",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
+        "symfony/form": "7.2.*",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/rate-limiter": "7.2.*",
         "symfony/runtime": "7.2.*",
-        "symfony/yaml": "7.2.*"
-    },
-    "require-dev": {
+        "symfony/security-bundle": "7.2.*",
+        "symfony/stimulus-bundle": "^2.25",
+        "symfony/twig-bundle": "7.2.*",
+        "symfony/ux-chartjs": "^2.25",
+        "symfony/ux-turbo": "^2.25",
+        "symfony/validator": "7.2.*",
+        "symfony/webpack-encore-bundle": "^2.2",
+        "symfony/yaml": "7.2.*",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/string-extra": "^3.21",
+        "twig/twig": "^2.12|^3.0"
     },
     "config": {
         "allow-plugins": {
@@ -62,8 +81,16 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
-            "require": "7.2.*"
+            "allow-contrib": true,
+            "require": "7.2.*",
+            "docker": true
         }
+    },
+    "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.1",
+        "symfony/maker-bundle": "^1.63",
+        "symfony/stopwatch": "7.2.*",
+        "symfony/web-profiler-bundle": "7.2.*",
+        "zenstruck/foundry": "^2.5"
     }
 }
